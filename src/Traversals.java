@@ -11,7 +11,39 @@ public class Traversals {
    * @return the sum of leaf node values, or 0 if the tree is null
    */
   public static int sumLeafNodes(TreeNode<Integer> node) {
-    return 0;
+    if(node == null) {
+      return 0;
+    }
+
+
+    int ctr = 0;
+
+    Queue<TreeNode<Integer>> BFSqueue = new LinkedList<>();
+
+    BFSqueue.add(node);
+
+    TreeNode<Integer> current;
+    while(!BFSqueue.isEmpty()) {
+      current = BFSqueue.poll();
+
+      if(current.left == null && current.right == null) {
+        ctr += current.value;
+      }
+      else if(current.left != null && current.right == null) {
+        BFSqueue.add(current.left);
+      }
+      else if(current.right != null && current.left == null) {
+        BFSqueue.add(current.right);
+      }
+      else {
+        BFSqueue.add(current.left);
+        BFSqueue.add(current.right);
+      }
+    }
+
+
+
+    return ctr;
   }
 
   /**
@@ -23,7 +55,41 @@ public class Traversals {
    * @return the count of internal nodes, or 0 if the tree is null
    */
   public static int countInternalNodes(TreeNode<Integer> node) {
-    return 0;
+    if(node == null) {
+      return 0;
+    }
+
+
+    int ctr = 0;
+
+    Queue<TreeNode<Integer>> BFSqueue = new LinkedList<>();
+
+    BFSqueue.add(node);
+
+    TreeNode<Integer> current;
+    while(!BFSqueue.isEmpty()) {
+      current = BFSqueue.poll();
+
+      if(current.left == null && current.right == null) {
+      }
+      else if(current.left != null && current.right == null) {
+        ctr++;
+        BFSqueue.add(current.left);
+      }
+      else if(current.right != null && current.left == null) {
+        ctr++;
+        BFSqueue.add(current.right);
+      }
+      else {
+        ctr++;
+        BFSqueue.add(current.left);
+        BFSqueue.add(current.right);
+      }
+    }
+
+
+
+    return ctr;
   }
 
   /**
@@ -37,7 +103,44 @@ public class Traversals {
    * @return a post-order traversal string, or an empty string if the tree is null
    */
   public static <T> String buildPostOrderString(TreeNode<T> node) {
-    return null;
+    String ret = "";
+
+    if(node == null) {
+      return ret;
+    }
+
+    Set<TreeNode<T>> traversedNodes = new HashSet<>(); //Using this for safety; I am unsure.
+    Stack<TreeNode<T>> nodeStack = new Stack<>();
+
+    nodeStack.add(node);
+    TreeNode<T> current;
+    while(!nodeStack.isEmpty()) {
+      current = nodeStack.peek();
+      if(traversedNodes.contains(current)) {
+        ret += current.value;
+        nodeStack.pop();
+        continue;
+      }
+      if(current.left == null && current.right == null) {
+        ret += current.value;
+        traversedNodes.add(current);
+        nodeStack.pop();
+        continue;
+      }
+      if(current.right == null && current.left != null) {
+        nodeStack.push(current.left);
+        traversedNodes.add(current);
+        continue;
+      }
+      else if(current.left == null && current.right != null) {
+        nodeStack.push(current.right);
+        traversedNodes.add(current);
+        continue;
+      }
+
+    }
+
+    return ret;
   }
 
   /**
