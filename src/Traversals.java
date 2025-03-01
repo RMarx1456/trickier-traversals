@@ -109,35 +109,27 @@ public class Traversals {
       return ret;
     }
 
-    Set<TreeNode<T>> traversedNodes = new HashSet<>(); //Using this for safety; I am unsure.
+
     Stack<TreeNode<T>> nodeStack = new Stack<>();
 
     nodeStack.add(node);
     TreeNode<T> current;
     while(!nodeStack.isEmpty()) {
-      current = nodeStack.peek();
-      if(traversedNodes.contains(current)) {
-        ret += current.value;
-        nodeStack.pop();
-        continue;
-      }
-      if(current.left == null && current.right == null) {
-        ret += current.value;
-        traversedNodes.add(current);
-        nodeStack.pop();
-        continue;
-      }
-      if(current.right == null && current.left != null) {
-        nodeStack.push(current.left);
-        traversedNodes.add(current);
-        continue;
-      }
-      else if(current.left == null && current.right != null) {
-        nodeStack.push(current.right);
-        traversedNodes.add(current);
-        continue;
-      }
+      current = nodeStack.pop();
+      //I'm extremely iffy on this line below. It originally was ret += current.value,
+      //but the ordering was backwards. It "works" because the test case is passed regardless,
+      //but if there's any polymorphism between the nodes beyond its value, say, 
+      //a set of results from traversing this tree depends on a method call that has its
+      //functionality rely on the value in the node, but the side effects must happen in a specific
+      //order, I see a huge problem there.
+      ret = current.value + ret;
 
+      if(current.left != null) {
+        nodeStack.push(current.left);
+      }
+      if(current.right != null) {
+        nodeStack.push(current.right);
+      }
     }
 
     return ret;
@@ -152,7 +144,30 @@ public class Traversals {
    * @return a list of node values in a top-to-bottom order, or an empty list if the tree is null
    */
   public static <T> List<T> collectLevelOrderValues(TreeNode<T> node) {
-    return null;
+    if(node == null) {
+      List<T> ret = Collections.emptyList();
+      return ret;
+    }
+    List<T> ret = new ArrayList<>();
+    Queue<TreeNode<T>> que = new LinkedList<>();
+
+    TreeNode<T> ptr = node;
+
+    que.add(ptr);
+
+    while(!que.isEmpty()) {
+      ptr = que.remove();
+
+      ret.add(ptr.value);
+
+      if(ptr.left != null) {
+        que.add(ptr.left);
+      }
+      if(ptr.right != null) {
+        que.add(ptr.right);
+      } 
+    }
+    return ret;
   }
 
   /**
@@ -163,7 +178,35 @@ public class Traversals {
    * @return the number of unique values in the tree, or 0 if the tree is null
    */
   public static int countDistinctValues(TreeNode<Integer> node) {
-    return 0;
+    if(node == null) {
+      return 0;
+    }
+    int ret = 0;
+    Set<Integer> memoize = new HashSet<Integer>();
+
+    Queue<TreeNode<Integer>> que = new LinkedList<>();
+
+    TreeNode<Integer> ptr = node;
+
+    que.add(ptr);
+
+    while(!que.isEmpty()) {
+      ptr = que.remove();
+
+      if(!memoize.contains(ptr.value)) {
+        ret++;
+        memoize.add(ptr.value);
+      }
+      
+
+      if(ptr.left != null) {
+        que.add(ptr.left);
+      }
+      if(ptr.right != null) {
+        que.add(ptr.right);
+      } 
+    }
+    return ret;
   }
 
   /**
@@ -175,7 +218,50 @@ public class Traversals {
    * @return true if there exists a strictly increasing root-to-leaf path, false otherwise
    */
   public static boolean hasStrictlyIncreasingPath(TreeNode<Integer> node) {
-    return false;
+    if(node == null) {
+      return false;
+    }
+    if(node.left != null && node.right != null) {
+      return true;
+    }
+    boolean ret = false;
+
+    Queue<Integer> comparisonValue = new LinkedList<>(); //Stores the value of the parent.
+    Queue<TreeNode<Integer>> que = new LinkedList<>(); //Stores the actual nodes for the search.
+    
+    TreeNode<Integer> ptr = node;
+    que.add(ptr);
+
+    comparisonValue.add(ptr.value);
+    while(!que.isEmpty() && !ret) {
+      ptr = que.remove();
+      int num = comparisonValue.remove();
+
+      if(ptr.left.value < ptr.value && ptr.right.value < ptr.value) {
+        if(que.isEmpty()) {
+          break;
+        }
+        continue;
+      }
+
+      if(ptr.left == null && ptr.right == null) {
+        ret = true;
+        break;
+      }
+
+
+      if(ptr.left.value > num) {
+        comparisonValue.add(ptr.left.value);
+        que.add(ptr.left);
+      }
+      if(ptr.right.value > num) {
+        comparisonValue.add(ptr.right.value);
+        que.add(ptr.right);
+      }
+    }
+
+
+    return ret;
   }
 
   // OPTIONAL CHALLENGE
